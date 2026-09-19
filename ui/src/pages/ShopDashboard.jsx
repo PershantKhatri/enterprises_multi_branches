@@ -2,11 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import API from '../services/api';
 import { Store, Package, DollarSign, LogOut, Plus, X, Loader2, Mail, Layers } from 'lucide-react';
-import axios from 'axios';
 
 export default function ShopDashboard() {
-  const { user, logout, token } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [shopData, setShopData] = useState(null);
   const [products, setProducts] = useState([]);
@@ -26,24 +26,18 @@ export default function ShopDashboard() {
 
   const fetchData = async () => {
     try {
-      const authToken = token || localStorage.getItem('token');
-
-      // 1. Shop details fetch karein (Safe fallback ke sath)
+      // 1. Shop details fetch karein (Safe fallback ke sath) using centralized API
       try {
-        const shopRes = await axios.get(`http://localhost:4000/api/shops/${shopId}`, {
-          headers: { Authorization: `Bearer ${authToken}` }
-        });
+        const shopRes = await API.get(`/shops/${shopId}`);
         setShopData(shopRes.data);
       } catch (shopErr) {
         console.warn('Shop details endpoint skipped or not found:', shopErr.message);
         setShopData({ shopName: user?.shopName, revenue: 0 });
       }
 
-      // 2. Is specific shop ke hi products fetch karein (shopId query param ke sath)
-      const productsRes = await axios.get(`http://localhost:4000/api/products?shopId=${shopId}`, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
-      setProducts(productsRes.data);
+      // 2. Is specific shop ke hi products fetch karein using centralized API
+      const productsRes = await API.get(`/products?shopId=${shopId}`);
+      setProducts(productsRes.data || []);
 
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -63,8 +57,6 @@ export default function ShopDashboard() {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const authToken = token || localStorage.getItem('token');
-      
       const payload = {
         name: formData.name,
         price: Number(formData.price),
@@ -74,9 +66,7 @@ export default function ShopDashboard() {
         shop_id: shopId
       };
 
-      await axios.post('http://localhost:4000/api/products', payload, {
-        headers: { Authorization: `Bearer ${authToken}` }
-      });
+      await API.post('/products', payload);
 
       // Form reset aur modal close karein
       setFormData({ name: '', price: '', stock: '', category: user?.category || 'General' });

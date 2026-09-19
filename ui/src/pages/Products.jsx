@@ -1,6 +1,6 @@
 // src/pages/Products.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import API from '../services/api';
 import { Package, Plus, X, Building, Filter } from 'lucide-react';
 
 export default function Products() {
@@ -16,15 +16,12 @@ export default function Products() {
     shopId: ''
   });
 
-  const token = localStorage.getItem('token');
-  const headers = { Authorization: `Bearer ${token}` };
-
-  // Fetch Shops & Products
+  // Fetch Shops & Products using centralized API instance
   const fetchData = async () => {
     try {
       const [shopsRes, productsRes] = await Promise.all([
-        axios.get('http://localhost:4000/api/shops', { headers }),
-        axios.get('http://localhost:4000/api/products', { headers })
+        API.get('/shops'),
+        API.get('/products')
       ]);
       
       const shopData = shopsRes.data || [];
@@ -65,7 +62,7 @@ export default function Products() {
         shop_id: selectedShop
       };
 
-      await axios.post('http://localhost:4000/api/products', payload, { headers });
+      await API.post('/products', payload);
       setIsModalOpen(false);
       setFormData({
         name: '',

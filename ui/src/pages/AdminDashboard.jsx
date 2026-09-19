@@ -1,6 +1,6 @@
 // src/pages/AdminDashboard.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import API from '../services/api';
 import { Users, Clock, UserCheck, ShieldAlert, Check, Ban, RefreshCw, Building2 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -10,10 +10,7 @@ export default function AdminDashboard() {
   const fetchTenants = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const { data } = await axios.get('http://localhost:4000/api/admin/tenants', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await API.get('/admin/tenants');
       setTenants(data);
     } catch (err) {
       console.error("Error fetching tenants:", err);
@@ -28,11 +25,7 @@ export default function AdminDashboard() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:4000/api/admin/tenants/${id}/status`, 
-        { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await API.put(`/admin/tenants/${id}/status`, { status: newStatus });
       fetchTenants();
     } catch (err) {
       alert("Failed to update status");
