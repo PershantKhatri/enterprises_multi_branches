@@ -1,7 +1,7 @@
 // src/pages/AdminDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import API from '../services/api';
-import { Users, Clock, UserCheck, ShieldAlert, Check, Ban, RefreshCw, Building2 } from 'lucide-react';
+import { Users, Clock, UserCheck, ShieldAlert, Check, Ban, RefreshCw, Building2, LogOut } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [tenants, setTenants] = useState([]);
@@ -32,6 +32,11 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  };
+
   const total = tenants.length;
   const pending = tenants.filter(t => t.status === 'PENDING').length;
   const approved = tenants.filter(t => t.status === 'APPROVED').length;
@@ -52,13 +57,25 @@ export default function AdminDashboard() {
             Real-time management of SaaS tenants, registration approvals, and account access controls.
           </p>
         </div>
-        <button
-          onClick={fetchTenants}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold rounded-xl transition shadow-lg shadow-amber-400/20 cursor-pointer shrink-0"
-        >
-          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
-          Refresh List
-        </button>
+        
+        {/* Action Buttons (Refresh & Logout) */}
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <button
+            onClick={fetchTenants}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold rounded-xl transition shadow-lg shadow-amber-400/20 cursor-pointer"
+          >
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            Refresh List
+          </button>
+          
+          <button
+            onClick={handleLogout}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/30 text-rose-400 text-xs font-bold rounded-xl transition cursor-pointer"
+          >
+            <LogOut size={14} />
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Stats Cards */}
